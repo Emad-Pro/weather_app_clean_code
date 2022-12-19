@@ -13,6 +13,6 @@ class ServerFaliure extends Faliure {
   const ServerFaliure(super.message);
 }
 
-class DataBaseFaliure extends Faliure {
-  const DataBaseFaliure(super.message);
+class LocaleFaliure extends Faliure {
+  const LocaleFaliure(super.message);
 }

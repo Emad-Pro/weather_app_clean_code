@@ -40,6 +40,13 @@ dependencies:
   dartz: ^0.10.1
   get_it: ^7.2.0
   dio: ^4.0.6
+  flutter_bloc: ^8.1.1
+  conditional_builder_null_safety: ^0.0.6
+  geolocator: ^9.0.2
+  google_fonts: ^3.0.1
+  ionicons: ^0.2.1
+  intl: ^0.18.0
+  flutter_custom_clippers: ^2.0.0
 
 dev_dependencies:
   flutter_test:
