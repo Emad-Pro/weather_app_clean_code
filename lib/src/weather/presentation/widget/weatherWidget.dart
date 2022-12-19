@@ -10,12 +10,36 @@ import 'package:weather_app_clean_code/src/utils/services/service_locator.dart';
 
 import 'package:weather_app_clean_code/src/weather/presentation/controller/bloc/weather_bloc.dart';
 
-Widget weatherContent() => BlocProvider(
-      create: (context) => WeatherBloc(
-          getDataWeatherWithLanLatUseCase: getIt(),
-          getPermissionLocationUseCase: getIt(),
-          getPositionLongLateUseCase: getIt())
-        ..add(const GetDataWeatherWithLanLatEvent(late: 22.3333, long: 33.3)),
+Widget getWeatherPermission() => BlocProvider.value(
+      value: getIt<WeatherBloc>()..add(GetPositionLongLatEvent()),
+      child: BlocConsumer<WeatherBloc, WeatherState>(
+          builder: (context, state) {
+            return ConditionalBuilder(
+                condition: state.positionLateLong != null,
+                builder: (context) {
+                  return weatherContent(
+                      late: state.positionLateLong!.latitude,
+                      long: state.positionLateLong!.longitude);
+                },
+                fallback: (contex) {
+                  return Center(
+                    child: SafeArea(
+                        child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        CircularProgressIndicator(),
+                        Text("Getting location information, please wait"),
+                      ],
+                    )),
+                  );
+                });
+          },
+          listener: (context, state) {}),
+    );
+
+Widget weatherContent({required double late, required double long}) => BlocProvider.value(
+      value: getIt<WeatherBloc>()..add(GetDataWeatherWithLanLatEvent(late: late, long: long)),
       child: BlocConsumer<WeatherBloc, WeatherState>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -25,7 +49,7 @@ Widget weatherContent() => BlocProvider(
                 final weather = state.weatherData;
                 return SafeArea(
                   child: Padding(
-                    padding: EdgeInsets.all(0),
+                    padding: const EdgeInsets.all(0),
                     child: ListView(
                       children: [
                         ClipPath(
@@ -68,12 +92,12 @@ Widget weatherContent() => BlocProvider(
                                   ],
                                 ),
                                 Container(
-                                  padding: EdgeInsets.fromLTRB(0, 30, 0, 30),
+                                  padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
                                   child: Column(children: [
                                     Transform.scale(
                                       scale: 1.6,
                                     ),
-                                    SizedBox(height: 10),
+                                    const SizedBox(height: 10),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +163,7 @@ Widget weatherContent() => BlocProvider(
                                           decoration: BoxDecoration(
                                               borderRadius: BorderRadius.circular(50),
                                               color: Colors.white),
-                                          padding: EdgeInsets.all(10.0),
+                                          padding: const EdgeInsets.all(10.0),
                                           child: const Icon(
                                             Ionicons.eye,
                                             color: Colors.indigo,

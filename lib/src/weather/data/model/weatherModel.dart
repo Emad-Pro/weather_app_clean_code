@@ -105,7 +105,7 @@ class SysModel extends Sys {
   ) {
     return SysModel(
       id: json['sunrise'] ?? 0,
-      country: json['country'],
+      country: json['country'] ?? '',
     );
   }
 }

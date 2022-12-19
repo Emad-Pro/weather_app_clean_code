@@ -37,7 +37,7 @@ class LocaleDataSource extends BaseLocaleDataSource {
   @override
   Future<PositionLateLong> getCurrentPosition() async {
     final Position position =
-        await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.reduced);
     print(position.toJson());
     return PositionLateLongModel.fromJson(position.toJson());
 

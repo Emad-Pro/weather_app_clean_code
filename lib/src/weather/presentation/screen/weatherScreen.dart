@@ -21,7 +21,7 @@ class WeatherScreen extends StatelessWidget {
           builder: (context, state) {
             return ConditionalBuilder(
                 condition: state.getPermission != null && state.getPermission!.permition == true,
-                builder: (context) => weatherContent(),
+                builder: (context) => getWeatherPermission(),
                 fallback: (context) {
                   return Column(
                     children: [
