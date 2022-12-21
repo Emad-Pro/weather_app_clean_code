@@ -3,7 +3,10 @@ import 'package:weather_app_clean_code/src/weather/data/dataSource/locale/weathe
 import 'package:weather_app_clean_code/src/weather/data/dataSource/remote/WeatherRemoteDataSource.dart';
 import 'package:weather_app_clean_code/src/weather/data/repository/weatherRepository.dart';
 import 'package:weather_app_clean_code/src/weather/domain/repository/baseWeatherRepository.dart';
+import 'package:weather_app_clean_code/src/weather/domain/useCase/checkLocationServerUseCase.dart';
+import 'package:weather_app_clean_code/src/weather/domain/useCase/getDataWeatherForCast.dart';
 import 'package:weather_app_clean_code/src/weather/domain/useCase/getDataWeatherWithLanLatUseCase.dart';
+import 'package:weather_app_clean_code/src/weather/domain/useCase/getLocationServerUseCase.dart';
 import 'package:weather_app_clean_code/src/weather/domain/useCase/getPermissionLocation.dart';
 import 'package:weather_app_clean_code/src/weather/domain/useCase/getPositionLongLateUseCase.dart';
 import 'package:weather_app_clean_code/src/weather/presentation/controller/bloc/weather_bloc.dart';
@@ -19,10 +22,16 @@ class ServiceLocator {
     getIt.registerLazySingleton(() => GetDataWeatherWithLanLatUseCase(getIt()));
     getIt.registerLazySingleton(() => GetPositionLongLateUseCase(getIt()));
     getIt.registerLazySingleton(() => GetPermissionLocationUseCase(getIt()));
+    getIt.registerLazySingleton(() => CheckLocationServerUseCase(getIt()));
+    getIt.registerLazySingleton(() => GetLocationServerUseCase(getIt()));
+    getIt.registerLazySingleton(() => GetDataWeatherForCastFiveDayUseCase(getIt()));
     getIt.registerLazySingleton(() => WeatherBloc(
+        getLocationServerUseCase: getIt(),
+        checkLocationServerUseCase: getIt(),
         getDataWeatherWithLanLatUseCase: getIt(),
         getPositionLongLateUseCase: getIt(),
-        getPermissionLocationUseCase: getIt()));
+        getPermissionLocationUseCase: getIt(),
+        getDataWeatherForCastFiveDayUseCase: getIt()));
     /*  getIt.registerLazySingleton(() => SearchBloc(getIt()));
     getIt.registerLazySingleton(() => GetSearchDataUseCase(getIt()));
     getIt.registerLazySingleton<BaseSearchRepository>(() => SearchRepository(getIt()));

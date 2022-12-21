@@ -22,7 +22,6 @@ class Weather extends Equatable {
       required this.cityName,
       required this.visibility});
   @override
-  // TODO: implement props
   List<Object?> get props =>
       [cord, main, wind, sys, timezone, id, cityName, description, visibility];
 }
@@ -33,7 +32,6 @@ class Cord extends Equatable {
 
   const Cord({required this.lon, required this.lat});
   @override
-  // TODO: implement props
   List<Object?> get props => [lon, lat];
 }
 
@@ -67,7 +65,6 @@ class Main extends Equatable {
     required this.humidity,
   });
   @override
-  // TODO: implement props
   List<Object?> get props => [
         temp,
         feelsLike,
@@ -84,7 +81,6 @@ class Sys extends Equatable {
 
   const Sys({required this.id, required this.country});
   @override
-  // TODO: implement props
   List<Object?> get props => [id, country];
 }
 

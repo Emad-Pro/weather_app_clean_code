@@ -1,5 +1,4 @@
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
@@ -10,8 +9,10 @@ import 'package:weather_app_clean_code/src/utils/services/service_locator.dart';
 
 import 'package:weather_app_clean_code/src/weather/presentation/controller/bloc/weather_bloc.dart';
 
-Widget getWeatherPermission() => BlocProvider.value(
-      value: getIt<WeatherBloc>()..add(GetPositionLongLatEvent()),
+Widget getWeatherData() => BlocProvider(
+      create: ((context) {
+        return getIt<WeatherBloc>()..add(GetPositionLongLatEvent());
+      }),
       child: BlocConsumer<WeatherBloc, WeatherState>(
           builder: (context, state) {
             return ConditionalBuilder(
@@ -29,7 +30,10 @@ Widget getWeatherPermission() => BlocProvider.value(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: const [
                         CircularProgressIndicator(),
-                        Text("Getting location information, please wait"),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        Text("يتم تحميل معلومات الموقع برجاء الانتظار"),
                       ],
                     )),
                   );
@@ -38,19 +42,22 @@ Widget getWeatherPermission() => BlocProvider.value(
           listener: (context, state) {}),
     );
 
-Widget weatherContent({required double late, required double long}) => BlocProvider.value(
-      value: getIt<WeatherBloc>()..add(GetDataWeatherWithLanLatEvent(late: late, long: long)),
+Widget weatherContent({required double late, required double long}) => BlocProvider(
+      create: (context) => getIt<WeatherBloc>()
+        ..add(GetDataWeatherWithLanLatEvent(late: late, long: long))
+        ..add(GetWeatherForCastEvent(long: long, late: late)),
       child: BlocConsumer<WeatherBloc, WeatherState>(
         listener: (context, state) {},
         builder: (context, state) {
           return ConditionalBuilder(
-              condition: state.weatherData != null,
+              condition: state.weatherData != null && state.weatherForCastData != null,
               builder: (context) {
                 final weather = state.weatherData;
                 return SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.all(0),
-                    child: ListView(
+                    padding: EdgeInsets.all(0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ClipPath(
                           clipper: OvalBottomBorderClipper(),
@@ -121,7 +128,7 @@ Widget weatherContent({required double late, required double long}) => BlocProvi
                                       ],
                                     ),
                                     Text(
-                                      "${weather.description.description.toUpperCase()}",
+                                      weather.description.description.toUpperCase(),
                                       style: GoogleFonts.lato(
                                         fontSize: 22,
                                         fontWeight: FontWeight.bold,
@@ -284,7 +291,129 @@ Widget weatherContent({required double late, required double long}) => BlocProvi
                                   ),
                                 )
                               ],
-                            ))
+                            )),
+                        ClipPath(
+                          child: Container(
+                            clipBehavior: Clip.antiAlias,
+                            decoration: BoxDecoration(color: Colors.indigo),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              "More Weather Data".toUpperCase(),
+                              style: GoogleFonts.alumniSans(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 300,
+                          child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: state.weatherForCastData!.weatherForCast.length,
+                              itemBuilder: (context, index) {
+                                final list = state.weatherForCastData!.weatherForCast[index];
+                                return Padding(
+                                    padding: const EdgeInsets.all(15),
+                                    child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(30),
+                                                color: Colors.indigo,
+                                              ),
+                                              padding: const EdgeInsets.all(15),
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.all(3.0),
+                                                    child: Container(
+                                                        decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(50),
+                                                            color: Colors.white),
+                                                        padding: const EdgeInsets.all(10.0),
+                                                        child: Text(DateFormat("yyyy-MM-dd hh:mm")
+                                                            .format(DateTime.parse(list.dtTxt)))),
+                                                  ),
+                                                  Padding(
+                                                    padding: const EdgeInsets.all(3.0),
+                                                    child:
+                                                        Text(list.weather.description.toUpperCase(),
+                                                            style: GoogleFonts.lato(
+                                                              fontSize: 15,
+                                                              fontWeight: FontWeight.w400,
+                                                              color: Colors.white,
+                                                            )),
+                                                  ),
+                                                  Padding(
+                                                      padding: const EdgeInsets.all(3.0),
+                                                      child: Image(
+                                                          width: 70,
+                                                          height: 70,
+                                                          image: NetworkImage(
+                                                              'http://openweathermap.org/img/wn/${list.weather.icon}.png',
+                                                              scale: 0.1))),
+                                                  Padding(
+                                                      padding: const EdgeInsets.all(3.0),
+                                                      child: Row(
+                                                        children: [
+                                                          Column(
+                                                            children: [
+                                                              const Icon(
+                                                                Icons.wind_power,
+                                                                color: Colors.green,
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 5,
+                                                              ),
+                                                              Text(
+                                                                '${list.wind.speed.toStringAsFixed(0)} /km',
+                                                                style: const TextStyle(
+                                                                  color: Colors.white,
+                                                                ),
+                                                              )
+                                                            ],
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Column(
+                                                            children: [
+                                                              const Icon(
+                                                                Icons.water_drop_outlined,
+                                                                color: Colors.white,
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 5,
+                                                              ),
+                                                              Text(
+                                                                  '${list.main.humidity.toStringAsFixed(0)} %',
+                                                                  style: const TextStyle(
+                                                                    color: Colors.white,
+                                                                  ))
+                                                            ],
+                                                          )
+                                                        ],
+                                                      )),
+                                                  Padding(
+                                                    padding: const EdgeInsets.all(3.0),
+                                                    child: Text(
+                                                      "${(list.main.temp - 273).toStringAsFixed(1)} °C",
+                                                      style: GoogleFonts.lato(
+                                                        fontSize: 20,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ))
+                                        ]));
+                              }),
+                        )
                       ],
                     ),
                   ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:weather_app_clean_code/src/weather/presentation/controller/bloc/weather_bloc.dart';
 
 import 'package:weather_app_clean_code/src/weather/presentation/screen/weatherScreen.dart';
 
@@ -14,8 +16,15 @@ class Main extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: WeatherScreen(),
+    return MaterialApp(
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => getIt<WeatherBloc>()..add(CheckLocationServiceEvent()),
+          ),
+        ],
+        child: const WeatherScreen(),
+      ),
     );
   }
 }

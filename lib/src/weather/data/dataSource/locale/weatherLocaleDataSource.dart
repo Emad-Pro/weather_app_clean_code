@@ -1,46 +1,65 @@
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:weather_app_clean_code/src/utils/erorr/Exception.dart';
-import 'package:weather_app_clean_code/src/weather/data/model/permisionModel.dart';
 
 import 'package:weather_app_clean_code/src/weather/data/model/positionLateLongModel.dart';
-import 'package:weather_app_clean_code/src/weather/domain/entitis/permition.dart';
-import 'package:weather_app_clean_code/src/weather/domain/entitis/positionLatLong.dart';
+
+import 'package:weather_app_clean_code/src/weather/domain/entitis/locationlatitudeLongitude.dart';
 
 abstract class BaseLocaleDataSource {
-  Future<GetPermissionModel> getLocationPermission();
-  Future<PositionLateLong> getCurrentPosition();
+  Future<bool> getLocationPermission();
+  Future<bool> checkLoctionService();
+  Future<bool> getLoctionService();
+  Future<locationlatitudeLongitude> getCurrentPosition();
 }
 
 class LocaleDataSource extends BaseLocaleDataSource {
   @override
-  Future<GetPermissionModel> getLocationPermission() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return GetPermissionModel.fromJson(false);
+  Future<bool> checkLoctionService() async {
+    bool serviceLocation = await Geolocator.isLocationServiceEnabled();
+    if (!serviceLocation) {
+      return false;
     }
+    return true;
+  }
+
+  @override
+  Future<bool> getLocationPermission() async {
+    LocationPermission permission;
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        return GetPermissionModel.fromJson(false);
+        return false;
       }
     }
     if (permission == LocationPermission.deniedForever) {
-      return GetPermissionModel.fromJson(false);
+      return false;
     }
-    return GetPermissionModel.fromJson(true);
+    return true;
   }
 
   @override
-  Future<PositionLateLong> getCurrentPosition() async {
+  Future<bool> getLoctionService() async {
+    bool serviceLocation = await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceLocation) {
+      await Geolocator.openLocationSettings();
+      serviceLocation = await Geolocator.isLocationServiceEnabled();
+      if (serviceLocation) {
+        return true;
+      }
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  @override
+  Future<locationlatitudeLongitude> getCurrentPosition() async {
     final Position position =
-        await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.reduced);
+        await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
     print(position.toJson());
     return PositionLateLongModel.fromJson(position.toJson());
-
-    // if (!hasPermission) return;
   }
 }

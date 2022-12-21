@@ -14,35 +14,32 @@ class WeatherScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocProvider.value(
-        value: getIt<WeatherBloc>()..add(GetPermissionLocationEvent()),
-        child: BlocConsumer<WeatherBloc, WeatherState>(
-          listener: (context, state) {},
-          builder: (context, state) {
-            return ConditionalBuilder(
-                condition: state.getPermission != null && state.getPermission!.permition == true,
-                builder: (context) => getWeatherPermission(),
-                fallback: (context) {
-                  return Column(
-                    children: [
-                      SafeArea(
-                          child: Center(
-                              child: Column(
-                        children: const [
-                          Icon(Icons.gps_off),
-                          Text("You need location permissions to get weather information"),
-                        ],
-                      ))),
-                      ElevatedButton(
-                          onPressed: () {
-                            getIt<WeatherBloc>().add(GetPermissionLocationEvent());
-                          },
-                          child: const Text("GetPermission"))
-                    ],
-                  );
-                });
-          },
-        ),
+      body: BlocConsumer<WeatherBloc, WeatherState>(
+        listener: (context, state) {},
+        builder: (context, state) {
+          return ConditionalBuilder(
+              condition: state.checkLocationService == true,
+              builder: (context) => getWeatherData(),
+              fallback: (context) {
+                return Column(
+                  children: [
+                    SafeArea(
+                        child: Center(
+                            child: Column(
+                      children: const [
+                        Icon(Icons.gps_off),
+                        Text("تحتاج الي تشغيل خدمات الموقع للحصول"),
+                      ],
+                    ))),
+                    ElevatedButton(
+                        onPressed: () {
+                          getIt<WeatherBloc>().add(GetLocationServiceEvent());
+                        },
+                        child: const Text("GetPermission"))
+                  ],
+                );
+              });
+        },
       ),
     );
   }
